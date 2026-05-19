@@ -29,78 +29,38 @@ To write a program to implement the the Logistic Regression Model to Predict the
 Program to implement the the Logistic Regression Model to Predict the Placement Status of Student.
 
 
+
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import numpy as np
 import matplotlib.pyplot as plt
-
-data = pd.DataFrame({
-    'cgpa': [6.8, 5.9, 5.3, 7.4, 5.8, 7.1, 6.5, 8.2, 5.0, 7.8],
-    'iq': [123, 106, 121, 132, 142, 115, 98, 140, 110, 128],
-    'placement': [1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
-})
-
-print("Dataset Preview:")
-print(data.head())
-
-X = data[['cgpa', 'iq']]
-y = data['placement']
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
-
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-
-model = LogisticRegression()
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+data = pd.read_csv("Placement_Data.csv")
+data = data.drop("salary", axis=1)
+data = pd.get_dummies(data, drop_first=True)
+X = data.drop("status_Placed", axis=1)
+y = data["status_Placed"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LogisticRegression(max_iter=1000)
 model.fit(X_train, y_train)
-
-
-y_pred = model.predict(X_test)
-
-print("\nConfusion Matrix:")
-print(confusion_matrix(y_test, y_pred, labels=[0, 1]))
-
-print("\nAccuracy Score:")
-print(accuracy_score(y_test, y_pred))
-
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
-
-new_student = pd.DataFrame({
-    'cgpa': [7.5],
-    'iq': [120]
-})
-
-new_student = scaler.transform(new_student)
-prediction = model.predict(new_student)
-
-if prediction[0] == 1:
-    print("\nThe student is Placed")
-else:
-    print("\nThe student is Not Placed")
-
-
-cm = confusion_matrix(y_test, y_pred)
-
-plt.imshow(cm)
-plt.colorbar()
-
-for i in range(len(cm)):
-    for j in range(len(cm[0])):
-        plt.text(j, i, cm[i][j])
-
+print("Accuracy:", model.score(X_test, y_test))
+X1 = X.iloc[:, 0].values.reshape(-1, 1)
+model_plot = LogisticRegression(max_iter=1000)
+model_plot.fit(X1, y)
+plt.scatter(X1, y, color='blue')
+x_values = np.linspace(X1.min(), X1.max(), 100)
+y_values = model_plot.predict_proba(x_values.reshape(-1,1))[:,1]
+plt.plot(x_values, y_values)
+plt.xlabel("Feature")
+plt.ylabel("Probability")
+plt.title("Logistic Regression Curve")
 plt.show()
-
 
 ```
 
 ## Output:
-<img width="655" height="1037" alt="image" src="https://github.com/user-attachments/assets/a9beedc6-107c-4184-acc5-ee23b8255334" />
+<img width="820" height="650" alt="Screenshot 2026-05-19 212205" src="https://github.com/user-attachments/assets/1ce7ccaf-f17e-4859-95ca-50713f0cd7b5" />
+
 
 
 
